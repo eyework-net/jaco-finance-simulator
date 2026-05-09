@@ -32,6 +32,4 @@
 実際の予算編成や会議資料として使用する場合は、決算書・予算書・会計担当者による確認と併用してください。
 
 ## 公開ページ
-
-```text
 https://eyework-net.github.io/jaco-finance-simulator/
