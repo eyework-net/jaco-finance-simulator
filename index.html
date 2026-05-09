@@ -1638,7 +1638,7 @@
 
     rows.push([]);
     rows.push(["注意"]);
-    rows.push(["本CSVはシミュレーション結果です。実際の予算編成・会議資料化にあたっては、決算書、予算書、会計担当者による確認を併用してください。"]);
+    rows.push(["本CSVはシミュレーション結果です。実際の予算編成・会議資料化にあたっては、決算書、予算書、財務担当者による確認を併用してください。"]);
 
     const csv = "\uFEFF" + makeCSV(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
