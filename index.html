@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>協会収支予測・介入シミュレーター</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 25px;
+      margin-bottom: 8px;
+      color: #222;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-top: 32px;
+      margin-bottom: 14px;
+      padding-left: 10px;
+      border-left: 5px solid #0d6efd;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+
+    .notice {
+      background: #fff8e1;
+      border-left: 5px solid #f0ad4e;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: #f1f8ff;
+      border: 1px solid #b6d4fe;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    details {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: #0d6efd;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .card label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      text-align: right;
+      background: #fff;
+    }
+
+    select {
+      text-align: left;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .main-btn {
+      background: #0d6efd;
+      color: #fff;
+      width: 100%;
+      margin-top: 24px;
+      font-size: 16px;
+    }
+
+    .main-btn:hover {
+      background: #0b5ed7;
+    }
+
+    .sub-btn {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .sub-btn:hover {
+      background: #dee2e6;
+    }
+
+    .fetch-btn {
+      background: #198754;
+      color: #fff;
+    }
+
+    .fetch-btn:hover {
+      background: #157347;
+    }
+
+    .reset-btn {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .danger-btn {
+      background: #d9534f;
+      color: #fff;
+    }
+
+    .save-btn {
+      background: #0dcaf0;
+      color: #000;
+    }
+
+    .export-btn {
+      background: #20c997;
+      color: #fff;
+    }
+
+    .storage-panel {
+      margin-top: 22px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .storage-panel-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .storage-status {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f1f3f5;
+      text-align: center;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    td:first-child, th:first-child,
+    td:nth-child(2), th:nth-child(2) {
+      text-align: center;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .summary-card h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .value {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .danger {
+      color: #d9534f;
+    }
+
+    .safe {
+      color: #198754;
+    }
+
+    .warning {
+      color: #f0ad4e;
+    }
+
+    .chart-wrap {
+      margin-top: 28px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .interpretation {
+      margin-top: 22px;
+      background: #fff8e1;
+      border-left: 5px solid #f0ad4e;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .result-area {
+      display: none;
+      margin-top: 28px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #777;
+      line-height: 1.7;
+      margin-top: 18px;
+    }
+
+    .source-box {
+      background: #f1f8ff;
+      border: 1px solid #b6d4fe;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .container {
+        box-shadow: none;
+      }
+
+      button {
+        display: none;
+      }
+
+      .notice, .info-box, details {
+        border: 1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>協会収支予測・介入シミュレーター</h1>
+
+  <p class="subtitle">
+    過去3〜5年分の会員数・収入・支出データをもとに、将来の収支を試算します。
+    物価上昇、人件費上昇、印刷・郵送費上昇を分けて扱い、
+    「何もしなかった場合」と「会費改定・支出削減・会員維持策などを行った場合」を比較できます。
+  </p>
+
+  <div class="notice">
+    <strong>このツールの位置づけ</strong><br>
+    このシミュレーターは、将来を正確に当てるためのものではありません。
+    前提条件を変えたときに、協会財政がどの方向へ動くかを確認するための
+    <strong>意思決定支援ツール</strong>です。
+    理事会・会議資料に使う場合は、実際の決算書・予算書・会計担当者の確認と併用してください。
+  </div>
+
+  <div class="info-box">
+    <strong>入力の基本方針</strong><br>
+    経済に詳しくない方は、まず以下の順番で操作してください。<br>
+    1. 過去3〜5年分の実績金額を入力する<br>
+    2. 物価参考指数・人件費参考指数・印刷郵送費参考指数が分からなければ、すべて100のままでよい<br>
+    3. 「最新参考指標を自動入力」を押す<br>
+    4. 将来の上昇率を必要に応じて修正する<br>
+    5. 介入シナリオを選ぶ<br>
+    6. 「収支予測を計算する」を押す<br>
+    7. 必要に応じて入力内容を保存、またはCSV出力する
+  </div>
+
+  <details open>
+    <summary>指数と上昇率の考え方</summary>
+    <p>
+      <strong>指数</strong>とは、基準となる年を100として、そこからどれくらい増減したかを見る数字です。
+      例えば、前年の指数が108、今年の指数が111の場合、111 ÷ 108 − 1 = 0.0278 となり、
+      約2.8％上昇したと考えます。
+    </p>
+    <p>
+      このシミュレーターでは、過去の指数は「過去の上がり具合を見るための参考値」として使います。
+      将来予測では、主に「年間上昇率（％/年）」を使います。
+    </p>
+    <p>
+      指数が分からない場合は、無理に調べなくても構いません。
+      指数欄を100のままにして、将来の上昇率だけ入力しても試算できます。
+    </p>
+  </details>
+
+  <details>
+    <summary>3つの上昇率の目安</summary>
+    <p>
+      <strong>物価上昇率：</strong>
+      消耗品費、会議費、備品費、一般管理費など、一般的な物価上昇の影響を受ける費用に使います。
+      迷った場合は2〜3％程度が目安です。
+    </p>
+    <p>
+      <strong>人件費上昇率：</strong>
+      職員給与、社会保険料、委託先人件費などの上昇を見込むための値です。
+      迷った場合は2〜3％、賃上げ圧力を強めに見るなら3〜5％を目安にします。
+    </p>
+    <p>
+      <strong>印刷・郵送費上昇率：</strong>
+      会報誌、総会資料、通知文書、封筒、発送代行、郵便料金などの上昇をまとめて見込むための値です。
+      迷った場合は3〜5％、紙資料や郵送が多い団体では5〜8％程度を検討します。
+    </p>
+  </details>
+
+  <h2>1. 過去データ入力</h2>
+
+  <p class="note">
+    3年分以上入力すると計算できます。空欄の年は無視されます。
+    金額は「万円」、年会費は「円」です。
+    参考指数が分からない場合は、すべて100のままで構いません。
+  </p>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>年度</th>
+          <th>会員数<br>人</th>
+          <th>年会費<br>円</th>
+          <th>会費以外の収入<br>万円</th>
+          <th>人件費<br>万円</th>
+          <th>印刷・郵送費<br>万円</th>
+          <th>その他物価連動費<br>万円</th>
+          <th>固定費・その他<br>万円</th>
+          <th>物価参考指数<br>分からなければ100</th>
+          <th>人件費参考指数<br>分からなければ100</th>
+          <th>印刷郵送費参考指数<br>分からなければ100</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td><input id="year1" value="2021"></td>
+          <td><input id="members1" value="7000"></td>
+          <td><input id="fee1" value="10000"></td>
+          <td><input id="otherIncome1" value="500"></td>
+          <td><input id="laborCost1" value="2400"></td>
+          <td><input id="printCost1" value="900"></td>
+          <td><input id="priceCost1" value="1800"></td>
+          <td><input id="fixedCost1" value="1700"></td>
+          <td><input id="cpi1" value="100"></td>
+          <td><input id="wageIndex1" value="100"></td>
+          <td><input id="printIndex1" value="100"></td>
+        </tr>
+
+        <tr>
+          <td><input id="year2" value="2022"></td>
+          <td><input id="members2" value="6950"></td>
+          <td><input id="fee2" value="10000"></td>
+          <td><input id="otherIncome2" value="480"></td>
+          <td><input id="laborCost2" value="2500"></td>
+          <td><input id="printCost2" value="960"></td>
+          <td><input id="priceCost2" value="1880"></td>
+          <td><input id="fixedCost2" value="1680"></td>
+          <td><input id="cpi2" value="100"></td>
+          <td><input id="wageIndex2" value="100"></td>
+          <td><input id="printIndex2" value="100"></td>
+        </tr>
+
+        <tr>
+          <td><input id="year3" value="2023"></td>
+          <td><input id="members3" value="6900"></td>
+          <td><input id="fee3" value="10000"></td>
+          <td><input id="otherIncome3" value="460"></td>
+          <td><input id="laborCost3" value="2620"></td>
+          <td><input id="printCost3" value="1040"></td>
+          <td><input id="priceCost3" value="1970"></td>
+          <td><input id="fixedCost3" value="1660"></td>
+          <td><input id="cpi3" value="100"></td>
+          <td><input id="wageIndex3" value="100"></td>
+          <td><input id="printIndex3" value="100"></td>
+        </tr>
+
+        <tr>
+          <td><input id="year4" value="2024"></td>
+          <td><input id="members4" value="6850"></td>
+          <td><input id="fee4" value="10000"></td>
+          <td><input id="otherIncome4" value="450"></td>
+          <td><input id="laborCost4" value="2750"></td>
+          <td><input id="printCost4" value="1130"></td>
+          <td><input id="priceCost4" value="2070"></td>
+          <td><input id="fixedCost4" value="1640"></td>
+          <td><input id="cpi4" value="100"></td>
+          <td><input id="wageIndex4" value="100"></td>
+          <td><input id="printIndex4" value="100"></td>
+        </tr>
+
+        <tr>
+          <td><input id="year5" value="2025"></td>
+          <td><input id="members5" value="6800"></td>
+          <td><input id="fee5" value="10000"></td>
+          <td><input id="otherIncome5" value="430"></td>
+          <td><input id="laborCost5" value="2900"></td>
+          <td><input id="printCost5" value="1250"></td>
+          <td><input id="priceCost5" value="2200"></td>
+          <td><input id="fixedCost5" value="1600"></td>
+          <td><input id="cpi5" value="100"></td>
+          <td><input id="wageIndex5" value="100"></td>
+          <td><input id="printIndex5" value="100"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>2. 将来の参考指標</h2>
+
+  <div class="notice">
+    <strong>ここが将来予測の中心です。</strong><br>
+    過去の指数が分からなくても、この欄に「今後、毎年どれくらい上がりそうか」を入れれば試算できます。
+    迷った場合は、まず「最新参考指標を自動入力」を押してください。
+  </div>
+
+  <button class="fetch-btn" onclick="fetchLatestIndicators()">最新参考指標を自動入力</button>
+  <button class="reset-btn" onclick="clearLatestIndicators()">参考指標をクリア</button>
+
+  <div class="source-box" id="indicatorSource">
+    現時点では外部データ未取得です。必要に応じて手動入力してください。
+  </div>
+
+  <div class="grid" style="margin-top: 14px;">
+    <div class="card">
+      <label>将来の物価上昇率（％/年）</label>
+      <input type="number" id="futureCpiRate" value="2.5" step="0.1">
+      <div class="note">
+        その他物価連動費に適用します。<br>
+        例：消耗品費、会議費、備品費、一般管理費など。<br>
+        迷った場合は2〜3％程度。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>将来の人件費上昇率（％/年）</label>
+      <input type="number" id="futureWageRate" value="3.0" step="0.1">
+      <div class="note">
+        人件費に適用します。<br>
+        例：職員給与、社会保険料、委託先人件費など。<br>
+        迷った場合は2〜3％、強めに見るなら3〜5％。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>将来の印刷・郵送費上昇率（％/年）</label>
+      <input type="number" id="futurePrintRate" value="4.0" step="0.1">
+      <div class="note">
+        印刷費、封筒、郵便料金、発送代行費などに適用します。<br>
+        迷った場合は3〜5％。紙資料が多い団体では5〜8％も検討。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>固定費・その他の上昇率（％/年）</label>
+      <input type="number" id="futureFixedRate" value="0.5" step="0.1">
+      <div class="note">
+        固定費を完全固定と見なさない場合に入力します。<br>
+        迷った場合は0〜1％程度。
+      </div>
+    </div>
+  </div>
+
+  <h2>3. 予測条件</h2>
+
+  <div class="grid">
+    <div class="card">
+      <label>予測年数（年）</label>
+      <input type="number" id="forecastYears" value="5" min="1" max="20">
+      <div class="note">通常は5〜10年程度が現実的です。</div>
+    </div>
+
+    <div class="card">
+      <label>現在の積立・内部留保（万円）</label>
+      <input type="number" id="reserve" value="3000">
+      <div class="note">累積赤字に対する耐久力を確認します。</div>
+    </div>
+
+    <div class="card">
+      <label>自然推移の推定方法</label>
+      <select id="projectionMode">
+        <option value="latestIndicators">推奨：将来の参考指標を優先</option>
+        <option value="historicalIndex">過去の参考指数トレンドを優先</option>
+        <option value="historicalExpense">過去の実績支出トレンドを優先</option>
+      </select>
+      <div class="note">
+        経済に詳しくない場合は、推奨設定のままで構いません。
+      </div>
+    </div>
+  </div>
+
+  <h2>4. 介入シナリオ</h2>
+
+  <div class="info-box">
+    介入シナリオは、「今後何か対策を行った場合」の試算です。
+    例えば、会費改定、紙資料の削減、発送回数の見直し、会員維持策、支出削減などを想定します。
+  </div>
+
+  <div>
+    <button class="sub-btn" onclick="applyInterventionPreset(0, 0, 0, 0)">介入なし</button>
+    <button class="sub-btn" onclick="applyInterventionPreset(10, 3, 0.5, 0)">軽度介入</button>
+    <button class="sub-btn" onclick="applyInterventionPreset(20, 5, 1.0, 10)">標準介入</button>
+    <button class="sub-btn" onclick="applyInterventionPreset(30, 8, 1.5, 20)">強めの介入</button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <label>年会費改定率（％）</label>
+      <input type="number" id="feeIncrease" value="20" step="1">
+      <div class="note">
+        例：20なら、現在の年会費を20％引き上げた想定です。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>全体支出削減率（％）</label>
+      <input type="number" id="expenseCut" value="5" step="0.5">
+      <div class="note">
+        全体的な経費削減を想定します。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>会員数改善幅（％ポイント/年）</label>
+      <input type="number" id="memberRetention" value="1.0" step="0.1">
+      <div class="note">
+        自然推移が -1.0％/年で、改善幅1.0なら 0％/年として扱います。
+      </div>
+    </div>
+
+    <div class="card">
+      <label>印刷・郵送の削減率（％）</label>
+      <input type="number" id="printCut" value="10" step="1">
+      <div class="note">
+        電子化、発送回数削減、印刷部数削減などを想定します。
+      </div>
+    </div>
+  </div>
+
+  <button class="main-btn" onclick="calculate()">収支予測を計算する</button>
+
+  <div class="storage-panel">
+    <div class="storage-panel-title">保存・出力</div>
+
+    <button class="save-btn" onclick="saveInputs()">入力内容を保存</button>
+    <button class="sub-btn" onclick="loadInputs()">保存内容を読み込む</button>
+    <button class="danger-btn" onclick="clearSavedInputs()">保存内容を削除</button>
+    <button class="export-btn" onclick="exportCSV()">試算結果をCSV出力</button>
+
+    <div id="storageStatus" class="storage-status">
+      入力内容はこのブラウザ内に保存されます。別のPCや別のブラウザには引き継がれません。
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-area">
+
+    <h2>5. 試算結果</h2>
+
+    <div class="summary">
+      <div class="summary-card">
+        <h3>推定された会員数変化率</h3>
+        <div id="memberRate" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>適用した物価上昇率</h3>
+        <div id="appliedCpiRate" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>適用した人件費上昇率</h3>
+        <div id="appliedWageRate" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>適用した印刷郵送費上昇率</h3>
+        <div id="appliedPrintRate" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>無介入：最終年収支</h3>
+        <div id="baselineFinalBalance" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>介入後：最終年収支</h3>
+        <div id="interventionFinalBalance" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>無介入：赤字化年</h3>
+        <div id="baselineDeficitYear" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>介入後：赤字化年</h3>
+        <div id="interventionDeficitYear" class="value"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>最終年に均衡する年会費目安</h3>
+        <div id="requiredFee" class="value"></div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="financeChart"></canvas>
+    </div>
+
+    <div id="interpretation" class="interpretation"></div>
+
+    <h2>6. 年次詳細</h2>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>年度</th>
+            <th>区分</th>
+            <th>会員数</th>
+            <th>収入<br>万円</th>
+            <th>人件費<br>万円</th>
+            <th>印刷郵送費<br>万円</th>
+            <th>その他物価連動費<br>万円</th>
+            <th>固定費等<br>万円</th>
+            <th>総支出<br>万円</th>
+            <th>単年度収支<br>万円</th>
+            <th>累積収支＋内部留保<br>万円</th>
+          </tr>
+        </thead>
+        <tbody id="detailTable"></tbody>
+      </table>
+    </div>
+
+    <div class="small">
+      ※本ツールは、過去実績と参考指標をもとにした財政シナリオ試算です。精密な将来予測ではありません。<br>
+      ※「最新参考指標を自動入力」ボタンは、現時点では仮実装です。将来的にはGoogle Apps Script、公的API、Googleスプレッドシート等に接続できます。<br>
+      ※理事会・総会資料に用いる場合は、会計担当者による確認、事業別収支、固定費・変動費の分解、臨時支出の確認を併用してください。
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  let financeChart = null;
+  let latestSimulation = null;
+
+  const STORAGE_KEY = "association_finance_simulator_inputs_v1";
+
+  const inputIds = [
+    "year1", "members1", "fee1", "otherIncome1", "laborCost1", "printCost1", "priceCost1", "fixedCost1", "cpi1", "wageIndex1", "printIndex1",
+    "year2", "members2", "fee2", "otherIncome2", "laborCost2", "printCost2", "priceCost2", "fixedCost2", "cpi2", "wageIndex2", "printIndex2",
+    "year3", "members3", "fee3", "otherIncome3", "laborCost3", "printCost3", "priceCost3", "fixedCost3", "cpi3", "wageIndex3", "printIndex3",
+    "year4", "members4", "fee4", "otherIncome4", "laborCost4", "printCost4", "priceCost4", "fixedCost4", "cpi4", "wageIndex4", "printIndex4",
+    "year5", "members5", "fee5", "otherIncome5", "laborCost5", "printCost5", "priceCost5", "fixedCost5", "cpi5", "wageIndex5", "printIndex5",
+    "futureCpiRate", "futureWageRate", "futurePrintRate", "futureFixedRate",
+    "forecastYears", "reserve", "projectionMode",
+    "feeIncrease", "expenseCut", "memberRetention", "printCut"
+  ];
+
+  function toNumber(value) {
+    const num = parseFloat(value);
+    return isNaN(num) ? null : num;
+  }
+
+  function formatNumber(num) {
+    return Math.round(num).toLocaleString();
+  }
+
+  function formatRate(rate) {
+    return (rate * 100).toFixed(2) + "％/年";
+  }
+
+  function applyInterventionPreset(feeIncrease, expenseCut, memberRetention, printCut) {
+    document.getElementById("feeIncrease").value = feeIncrease;
+    document.getElementById("expenseCut").value = expenseCut;
+    document.getElementById("memberRetention").value = memberRetention;
+    document.getElementById("printCut").value = printCut;
+  }
+
+  function fetchLatestIndicators() {
+    /*
+      将来的には、ここをGoogle Apps Scriptや公的API接続に差し替えます。
+
+      例：
+      fetch("https://script.google.com/macros/s/xxxxxxxx/exec")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("futureCpiRate").value = data.cpiRate;
+          document.getElementById("futureWageRate").value = data.wageRate;
+          document.getElementById("futurePrintRate").value = data.printRate;
+          document.getElementById("futureFixedRate").value = data.fixedRate;
+        });
+
+      現在はHTML単体で動くように、仮の参考値を入力しています。
+    */
+
+    const mockData = {
+      cpiRate: 2.8,
+      wageRate: 3.2,
+      printRate: 5.0,
+      fixedRate: 1.0,
+      sourceText:
+        "参考指標を入力しました。現在はHTML単体版のため、外部サイトからの実取得ではありません。将来的には、e-Stat、厚生労働省、日銀、日本郵便等の公表値をGoogle Apps Script経由で取得する設計にできます。"
+    };
+
+    document.getElementById("futureCpiRate").value = mockData.cpiRate;
+    document.getElementById("futureWageRate").value = mockData.wageRate;
+    document.getElementById("futurePrintRate").value = mockData.printRate;
+    document.getElementById("futureFixedRate").value = mockData.fixedRate;
+
+    document.getElementById("indicatorSource").innerHTML =
+      "<strong>参考指標を自動入力しました。</strong><br>" + mockData.sourceText;
+  }
+
+  function clearLatestIndicators() {
+    document.getElementById("futureCpiRate").value = "";
+    document.getElementById("futureWageRate").value = "";
+    document.getElementById("futurePrintRate").value = "";
+    document.getElementById("futureFixedRate").value = "";
+
+    document.getElementById("indicatorSource").innerHTML =
+      "参考指標をクリアしました。必要に応じて手動入力してください。";
+  }
+
+  function estimateCAGR(firstValue, lastValue, periods) {
+    if (firstValue <= 0 || lastValue <= 0 || periods <= 0) return 0;
+    return Math.pow(lastValue / firstValue, 1 / periods) - 1;
+  }
+
+  function getHistoricalData() {
+    const data = [];
+
+    for (let i = 1; i <= 5; i++) {
+      const year = toNumber(document.getElementById("year" + i).value);
+      const members = toNumber(document.getElementById("members" + i).value);
+      const fee = toNumber(document.getElementById("fee" + i).value);
+      const otherIncome = toNumber(document.getElementById("otherIncome" + i).value);
+      const laborCost = toNumber(document.getElementById("laborCost" + i).value);
+      const printCost = toNumber(document.getElementById("printCost" + i).value);
+      const priceCost = toNumber(document.getElementById("priceCost" + i).value);
+      const fixedCost = toNumber(document.getElementById("fixedCost" + i).value);
+      const cpi = toNumber(document.getElementById("cpi" + i).value);
+      const wageIndex = toNumber(document.getElementById("wageIndex" + i).value);
+      const printIndex = toNumber(document.getElementById("printIndex" + i).value);
+
+      if (
+        year !== null &&
+        members !== null &&
+        fee !== null &&
+        otherIncome !== null &&
+        laborCost !== null &&
+        printCost !== null &&
+        priceCost !== null &&
+        fixedCost !== null
+      ) {
+        const membershipIncome = members * fee / 10000;
+        const income = membershipIncome + otherIncome;
+        const expense = laborCost + printCost + priceCost + fixedCost;
+        const balance = income - expense;
+
+        data.push({
+          year,
+          members,
+          fee,
+          otherIncome,
+          laborCost,
+          printCost,
+          priceCost,
+          fixedCost,
+          cpi,
+          wageIndex,
+          printIndex,
+          income,
+          expense,
+          balance
+        });
+      }
+    }
+
+    data.sort((a, b) => a.year - b.year);
+    return data;
+  }
+
+  function getAppliedRates(historicalData) {
+    const first = historicalData[0];
+    const last = historicalData[historicalData.length - 1];
+    const periods = historicalData.length - 1;
+    const mode = document.getElementById("projectionMode").value;
+
+    const memberRate = estimateCAGR(first.members, last.members, periods);
+    const feeRate = estimateCAGR(first.fee, last.fee, periods);
+    const otherIncomeRate = estimateCAGR(first.otherIncome || 1, last.otherIncome || 1, periods);
+
+    let cpiRate;
+    let wageRate;
+    let printRate;
+    let fixedRate;
+
+    const latestCpiRate = toNumber(document.getElementById("futureCpiRate").value);
+    const latestWageRate = toNumber(document.getElementById("futureWageRate").value);
+    const latestPrintRate = toNumber(document.getElementById("futurePrintRate").value);
+    const latestFixedRate = toNumber(document.getElementById("futureFixedRate").value);
+
+    const historicalCpiRate = estimateCAGR(first.cpi || 1, last.cpi || 1, periods);
+    const historicalWageRate = estimateCAGR(first.wageIndex || 1, last.wageIndex || 1, periods);
+    const historicalPrintRate = estimateCAGR(first.printIndex || 1, last.printIndex || 1, periods);
+
+    const historicalLaborCostRate = estimateCAGR(first.laborCost, last.laborCost, periods);
+    const historicalPrintCostRate = estimateCAGR(first.printCost, last.printCost, periods);
+    const historicalPriceCostRate = estimateCAGR(first.priceCost, last.priceCost, periods);
+    const historicalFixedCostRate = estimateCAGR(first.fixedCost || 1, last.fixedCost || 1, periods);
+
+    if (mode === "latestIndicators") {
+      cpiRate = latestCpiRate !== null ? latestCpiRate / 100 : historicalPriceCostRate;
+      wageRate = latestWageRate !== null ? latestWageRate / 100 : historicalLaborCostRate;
+      printRate = latestPrintRate !== null ? latestPrintRate / 100 : historicalPrintCostRate;
+      fixedRate = latestFixedRate !== null ? latestFixedRate / 100 : historicalFixedCostRate;
+    } else if (mode === "historicalIndex") {
+      cpiRate = historicalCpiRate;
+      wageRate = historicalWageRate;
+      printRate = historicalPrintRate;
+      fixedRate = historicalFixedCostRate;
+    } else {
+      cpiRate = historicalPriceCostRate;
+      wageRate = historicalLaborCostRate;
+      printRate = historicalPrintCostRate;
+      fixedRate = historicalFixedCostRate;
+    }
+
+    return {
+      memberRate,
+      feeRate,
+      otherIncomeRate,
+      cpiRate,
+      wageRate,
+      printRate,
+      fixedRate
+    };
+  }
+
+  function calculate() {
+    const historicalData = getHistoricalData();
+
+    if (historicalData.length < 3) {
+      alert("少なくとも3年分のデータを入力してください。");
+      return;
+    }
+
+    const forecastYears = parseInt(document.getElementById("forecastYears").value);
+    const reserve = toNumber(document.getElementById("reserve").value);
+
+    const feeIncrease = toNumber(document.getElementById("feeIncrease").value) / 100;
+    const expenseCut = toNumber(document.getElementById("expenseCut").value) / 100;
+    const memberRetention = toNumber(document.getElementById("memberRetention").value) / 100;
+    const printCut = toNumber(document.getElementById("printCut").value) / 100;
+
+    if (
+      isNaN(forecastYears) ||
+      reserve === null ||
+      isNaN(feeIncrease) ||
+      isNaN(expenseCut) ||
+      isNaN(memberRetention) ||
+      isNaN(printCut)
+    ) {
+      alert("予測条件または介入条件に不正な値があります。");
+      return;
+    }
+
+    if (forecastYears <= 0 || forecastYears > 20) {
+      alert("予測年数は1〜20年の範囲で入力してください。");
+      return;
+    }
+
+    const rates = getAppliedRates(historicalData);
+    const last = historicalData[historicalData.length - 1];
+
+    const baseline = [];
+    const intervention = [];
+
+    let baselineReserve = reserve;
+    let interventionReserve = reserve;
+
+    let baselineFirstDeficit = null;
+    let interventionFirstDeficit = null;
+
+    for (let i = 1; i <= forecastYears; i++) {
+      const year = last.year + i;
+
+      const baselineMembers = last.members * Math.pow(1 + rates.memberRate, i);
+      const baselineFee = last.fee * Math.pow(1 + rates.feeRate, i);
+      const baselineOtherIncome = last.otherIncome * Math.pow(1 + rates.otherIncomeRate, i);
+      const baselineIncome = baselineMembers * baselineFee / 10000 + baselineOtherIncome;
+
+      const baselineLaborCost = last.laborCost * Math.pow(1 + rates.wageRate, i);
+      const baselinePrintCost = last.printCost * Math.pow(1 + rates.printRate, i);
+      const baselinePriceCost = last.priceCost * Math.pow(1 + rates.cpiRate, i);
+      const baselineFixedCost = last.fixedCost * Math.pow(1 + rates.fixedRate, i);
+
+      const baselineExpense =
+        baselineLaborCost + baselinePrintCost + baselinePriceCost + baselineFixedCost;
+
+      const baselineBalance = baselineIncome - baselineExpense;
+      baselineReserve += baselineBalance;
+
+      if (baselineBalance < 0 && baselineFirstDeficit === null) {
+        baselineFirstDeficit = year;
+      }
+
+      baseline.push({
+        year,
+        members: baselineMembers,
+        fee: baselineFee,
+        income: baselineIncome,
+        laborCost: baselineLaborCost,
+        printCost: baselinePrintCost,
+        priceCost: baselinePriceCost,
+        fixedCost: baselineFixedCost,
+        expense: baselineExpense,
+        balance: baselineBalance,
+        cumulative: baselineReserve
+      });
+
+      const interventionMembers =
+        last.members * Math.pow(1 + rates.memberRate + memberRetention, i);
+
+      const interventionFee =
+        last.fee * (1 + feeIncrease) * Math.pow(1 + rates.feeRate, i);
+
+      const interventionOtherIncome =
+        last.otherIncome * Math.pow(1 + rates.otherIncomeRate, i);
+
+      const interventionIncome =
+        interventionMembers * interventionFee / 10000 + interventionOtherIncome;
+
+      const interventionLaborCost =
+        last.laborCost * Math.pow(1 + rates.wageRate, i);
+
+      const interventionPrintCost =
+        last.printCost * Math.pow(1 + rates.printRate, i) * (1 - printCut);
+
+      const interventionPriceCost =
+        last.priceCost * Math.pow(1 + rates.cpiRate, i);
+
+      const interventionFixedCost =
+        last.fixedCost * Math.pow(1 + rates.fixedRate, i);
+
+      const interventionExpenseBeforeCut =
+        interventionLaborCost +
+        interventionPrintCost +
+        interventionPriceCost +
+        interventionFixedCost;
+
+      const interventionExpense =
+        interventionExpenseBeforeCut * (1 - expenseCut);
+
+      const interventionBalance = interventionIncome - interventionExpense;
+      interventionReserve += interventionBalance;
+
+      if (interventionBalance < 0 && interventionFirstDeficit === null) {
+        interventionFirstDeficit = year;
+      }
+
+      intervention.push({
+        year,
+        members: interventionMembers,
+        fee: interventionFee,
+        income: interventionIncome,
+        laborCost: interventionLaborCost * (1 - expenseCut),
+        printCost: interventionPrintCost * (1 - expenseCut),
+        priceCost: interventionPriceCost * (1 - expenseCut),
+        fixedCost: interventionFixedCost * (1 - expenseCut),
+        expense: interventionExpense,
+        balance: interventionBalance,
+        cumulative: interventionReserve
+      });
+    }
+
+    renderSummary(rates, baseline, intervention, baselineFirstDeficit, interventionFirstDeficit, last);
+    renderChart(historicalData, baseline, intervention);
+    renderDetailTable(historicalData, baseline, intervention, reserve);
+    renderInterpretation(baseline, intervention, baselineFirstDeficit, interventionFirstDeficit, rates);
+
+    latestSimulation = {
+      createdAt: new Date().toLocaleString("ja-JP"),
+      historicalData,
+      baseline,
+      intervention,
+      rates,
+      reserve,
+      baselineFirstDeficit,
+      interventionFirstDeficit,
+      inputs: collectInputs()
+    };
+
+    document.getElementById("resultArea").style.display = "block";
+
+    setStorageStatus("試算が完了しました。CSV出力できます。");
+  }
+
+  function renderSummary(rates, baseline, intervention, baselineFirstDeficit, interventionFirstDeficit, last) {
+    const baselineLast = baseline[baseline.length - 1];
+    const interventionLast = intervention[intervention.length - 1];
+
+    document.getElementById("memberRate").textContent = formatRate(rates.memberRate);
+    document.getElementById("appliedCpiRate").textContent = formatRate(rates.cpiRate);
+    document.getElementById("appliedWageRate").textContent = formatRate(rates.wageRate);
+    document.getElementById("appliedPrintRate").textContent = formatRate(rates.printRate);
+
+    const baselineEl = document.getElementById("baselineFinalBalance");
+    baselineEl.textContent = formatNumber(baselineLast.balance) + " 万円";
+    baselineEl.className = "value " + (baselineLast.balance < 0 ? "danger" : "safe");
+
+    const interventionEl = document.getElementById("interventionFinalBalance");
+    interventionEl.textContent = formatNumber(interventionLast.balance) + " 万円";
+    interventionEl.className = "value " + (interventionLast.balance < 0 ? "danger" : "safe");
+
+    const baselineDeficitEl = document.getElementById("baselineDeficitYear");
+    baselineDeficitEl.textContent = baselineFirstDeficit ? baselineFirstDeficit + "年度" : "なし";
+    baselineDeficitEl.className = "value " + (baselineFirstDeficit ? "danger" : "safe");
+
+    const interventionDeficitEl = document.getElementById("interventionDeficitYear");
+    interventionDeficitEl.textContent = interventionFirstDeficit ? interventionFirstDeficit + "年度" : "なし";
+    interventionDeficitEl.className = "value " + (interventionFirstDeficit ? "danger" : "safe");
+
+    const baselineMembershipIncome = baselineLast.members * baselineLast.fee / 10000;
+    const baselineOtherIncome = baselineLast.income - baselineMembershipIncome;
+
+    const requiredFee =
+      (baselineLast.expense - baselineOtherIncome) * 10000 / baselineLast.members;
+
+    const requiredFeeEl = document.getElementById("requiredFee");
+    requiredFeeEl.textContent = Math.ceil(requiredFee).toLocaleString() + " 円";
+    requiredFeeEl.className = "value " + (requiredFee > last.fee ? "warning" : "safe");
+  }
+
+  function renderChart(historicalData, baseline, intervention) {
+    const ctx = document.getElementById("financeChart").getContext("2d");
+
+    const labels = [
+      ...historicalData.map(d => String(d.year)),
+      ...baseline.map(d => String(d.year))
+    ];
+
+    const actualIncome = [
+      ...historicalData.map(d => d.income),
+      ...baseline.map(() => null)
+    ];
+
+    const actualExpense = [
+      ...historicalData.map(d => d.expense),
+      ...baseline.map(() => null)
+    ];
+
+    const nullPast = historicalData.map(() => null);
+
+    const baselineIncome = [
+      ...nullPast.slice(0, -1),
+      historicalData[historicalData.length - 1].income,
+      ...baseline.map(d => d.income)
+    ];
+
+    const baselineExpense = [
+      ...nullPast.slice(0, -1),
+      historicalData[historicalData.length - 1].expense,
+      ...baseline.map(d => d.expense)
+    ];
+
+    const interventionIncome = [
+      ...nullPast.slice(0, -1),
+      historicalData[historicalData.length - 1].income,
+      ...intervention.map(d => d.income)
+    ];
+
+    const interventionExpense = [
+      ...nullPast.slice(0, -1),
+      historicalData[historicalData.length - 1].expense,
+      ...intervention.map(d => d.expense)
+    ];
+
+    if (financeChart) {
+      financeChart.destroy();
+    }
+
+    financeChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "実績：収入",
+            data: actualIncome,
+            borderColor: "#222222",
+            backgroundColor: "transparent",
+            borderWidth: 3,
+            tension: 0.2,
+            pointRadius: 4
+          },
+          {
+            label: "実績：支出",
+            data: actualExpense,
+            borderColor: "#777777",
+            backgroundColor: "transparent",
+            borderWidth: 3,
+            tension: 0.2,
+            pointRadius: 4
+          },
+          {
+            label: "無介入：収入予測",
+            data: baselineIncome,
+            borderColor: "#d9534f",
+            backgroundColor: "transparent",
+            borderDash: [6, 4],
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3
+          },
+          {
+            label: "無介入ゾーン：支出予測",
+            data: baselineExpense,
+            borderColor: "#d9534f",
+            backgroundColor: "rgba(217, 83, 79, 0.16)",
+            fill: 2,
+            borderDash: [6, 4],
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3
+          },
+          {
+            label: "介入後：収入予測",
+            data: interventionIncome,
+            borderColor: "#198754",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3
+          },
+          {
+            label: "介入ゾーン：支出予測",
+            data: interventionExpense,
+            borderColor: "#198754",
+            backgroundColor: "rgba(25, 135, 84, 0.16)",
+            fill: 4,
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: "bottom"
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                if (context.raw === null) return "";
+                return context.dataset.label + ": " +
+                  Math.round(context.raw).toLocaleString() + " 万円";
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: "金額（万円）"
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: "年度"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderDetailTable(historicalData, baseline, intervention, reserve) {
+    const tbody = document.getElementById("detailTable");
+    tbody.innerHTML = "";
+
+    let actualCumulative = reserve;
+
+    historicalData.forEach(d => {
+      actualCumulative += d.balance;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${d.year}</td>
+        <td>実績</td>
+        <td>${formatNumber(d.members)}</td>
+        <td>${formatNumber(d.income)}</td>
+        <td>${formatNumber(d.laborCost)}</td>
+        <td>${formatNumber(d.printCost)}</td>
+        <td>${formatNumber(d.priceCost)}</td>
+        <td>${formatNumber(d.fixedCost)}</td>
+        <td>${formatNumber(d.expense)}</td>
+        <td class="${d.balance < 0 ? "danger" : "safe"}">${formatNumber(d.balance)}</td>
+        <td class="${actualCumulative < 0 ? "danger" : "safe"}">${formatNumber(actualCumulative)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    baseline.forEach(d => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${d.year}</td>
+        <td>無介入</td>
+        <td>${formatNumber(d.members)}</td>
+        <td>${formatNumber(d.income)}</td>
+        <td>${formatNumber(d.laborCost)}</td>
+        <td>${formatNumber(d.printCost)}</td>
+        <td>${formatNumber(d.priceCost)}</td>
+        <td>${formatNumber(d.fixedCost)}</td>
+        <td>${formatNumber(d.expense)}</td>
+        <td class="${d.balance < 0 ? "danger" : "safe"}">${formatNumber(d.balance)}</td>
+        <td class="${d.cumulative < 0 ? "danger" : "safe"}">${formatNumber(d.cumulative)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    intervention.forEach(d => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${d.year}</td>
+        <td>介入後</td>
+        <td>${formatNumber(d.members)}</td>
+        <td>${formatNumber(d.income)}</td>
+        <td>${formatNumber(d.laborCost)}</td>
+        <td>${formatNumber(d.printCost)}</td>
+        <td>${formatNumber(d.priceCost)}</td>
+        <td>${formatNumber(d.fixedCost)}</td>
+        <td>${formatNumber(d.expense)}</td>
+        <td class="${d.balance < 0 ? "danger" : "safe"}">${formatNumber(d.balance)}</td>
+        <td class="${d.cumulative < 0 ? "danger" : "safe"}">${formatNumber(d.cumulative)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  function renderInterpretation(baseline, intervention, baselineFirstDeficit, interventionFirstDeficit, rates) {
+    const baselineLast = baseline[baseline.length - 1];
+    const interventionLast = intervention[intervention.length - 1];
+
+    const improvement = interventionLast.balance - baselineLast.balance;
+
+    let text = "";
+
+    text += `今回の試算では、物価上昇率 <strong>${formatRate(rates.cpiRate)}</strong>、人件費上昇率 <strong>${formatRate(rates.wageRate)}</strong>、印刷・郵送費上昇率 <strong>${formatRate(rates.printRate)}</strong> を適用しています。`;
+    text += `<br>`;
+
+    if (baselineFirstDeficit) {
+      text += `無介入シナリオでは、<strong>${baselineFirstDeficit}年度</strong>に単年度赤字へ転じる試算です。`;
+    } else {
+      text += `無介入シナリオでは、予測期間内に単年度赤字は発生しません。`;
+    }
+
+    text += `<br>`;
+
+    if (interventionFirstDeficit) {
+      text += `介入後シナリオでも、<strong>${interventionFirstDeficit}年度</strong>に単年度赤字が残ります。介入条件が不十分な可能性があります。`;
+    } else {
+      text += `介入後シナリオでは、予測期間内の単年度赤字は回避されています。`;
+    }
+
+    text += `<br>`;
+
+    text += `最終年における介入効果は、無介入と比較して約 <strong>${formatNumber(improvement)} 万円</strong> の改善です。`;
+
+    if (improvement <= 0) {
+      text += `<br><strong>注意：</strong>現在の介入設定では財政改善効果が十分に出ていません。会費改定率、支出削減率、会員維持策、印刷・郵送削減率を見直してください。`;
+    }
+
+    document.getElementById("interpretation").innerHTML = text;
+  }
+
+  function collectInputs() {
+    const data = {};
+
+    inputIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        data[id] = el.value;
+      }
+    });
+
+    return data;
+  }
+
+  function applyInputs(data) {
+    Object.keys(data).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = data[id];
+      }
+    });
+  }
+
+  function saveInputs() {
+    const data = collectInputs();
+
+    const payload = {
+      savedAt: new Date().toLocaleString("ja-JP"),
+      data
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+    setStorageStatus("入力内容を保存しました。保存日時：" + payload.savedAt);
+  }
+
+  function loadInputs() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      alert("保存された入力内容がありません。");
+      setStorageStatus("保存された入力内容がありません。");
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(raw);
+      applyInputs(payload.data);
+
+      setStorageStatus("保存内容を読み込みました。保存日時：" + payload.savedAt);
+    } catch (e) {
+      alert("保存データの読み込みに失敗しました。");
+      setStorageStatus("保存データの読み込みに失敗しました。");
+    }
+  }
+
+  function clearSavedInputs() {
+    const ok = confirm("保存された入力内容を削除します。よろしいですか？");
+
+    if (!ok) return;
+
+    localStorage.removeItem(STORAGE_KEY);
+    setStorageStatus("保存内容を削除しました。");
+  }
+
+  function setStorageStatus(message) {
+    const el = document.getElementById("storageStatus");
+    if (el) {
+      el.textContent = message;
+    }
+  }
+
+  function csvEscape(value) {
+    if (value === null || value === undefined) return "";
+
+    const str = String(value);
+
+    if (str.includes(",") || str.includes("\n") || str.includes('"')) {
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+
+    return str;
+  }
+
+  function makeCSV(rows) {
+    return rows.map(row => row.map(csvEscape).join(",")).join("\n");
+  }
+
+  function addSection(rows, title) {
+    rows.push([]);
+    rows.push([title]);
+  }
+
+  function exportCSV() {
+    if (!latestSimulation) {
+      alert("先に「収支予測を計算する」を押してください。");
+      return;
+    }
+
+    const sim = latestSimulation;
+    const rows = [];
+
+    rows.push(["協会収支予測・介入シミュレーター 試算結果"]);
+    rows.push(["出力日時", new Date().toLocaleString("ja-JP")]);
+    rows.push(["試算作成日時", sim.createdAt]);
+
+    addSection(rows, "入力条件");
+
+    rows.push(["項目", "値"]);
+
+    const inputLabels = {
+      futureCpiRate: "将来の物価上昇率（％/年）",
+      futureWageRate: "将来の人件費上昇率（％/年）",
+      futurePrintRate: "将来の印刷・郵送費上昇率（％/年）",
+      futureFixedRate: "固定費・その他の上昇率（％/年）",
+      forecastYears: "予測年数（年）",
+      reserve: "現在の積立・内部留保（万円）",
+      projectionMode: "自然推移の推定方法",
+      feeIncrease: "年会費改定率（％）",
+      expenseCut: "全体支出削減率（％）",
+      memberRetention: "会員数改善幅（％ポイント/年）",
+      printCut: "印刷・郵送の削減率（％）"
+    };
+
+    Object.keys(inputLabels).forEach(id => {
+      rows.push([inputLabels[id], sim.inputs[id]]);
+    });
+
+    addSection(rows, "適用した上昇率");
+
+    rows.push(["項目", "値"]);
+    rows.push(["会員数変化率", formatRate(sim.rates.memberRate)]);
+    rows.push(["年会費変化率", formatRate(sim.rates.feeRate)]);
+    rows.push(["会費以外の収入変化率", formatRate(sim.rates.otherIncomeRate)]);
+    rows.push(["物価上昇率", formatRate(sim.rates.cpiRate)]);
+    rows.push(["人件費上昇率", formatRate(sim.rates.wageRate)]);
+    rows.push(["印刷・郵送費上昇率", formatRate(sim.rates.printRate)]);
+    rows.push(["固定費・その他上昇率", formatRate(sim.rates.fixedRate)]);
+
+    addSection(rows, "過去実績データ");
+
+    rows.push([
+      "年度",
+      "会員数",
+      "年会費",
+      "会費以外の収入（万円）",
+      "収入合計（万円）",
+      "人件費（万円）",
+      "印刷・郵送費（万円）",
+      "その他物価連動費（万円）",
+      "固定費・その他（万円）",
+      "総支出（万円）",
+      "単年度収支（万円）",
+      "物価参考指数",
+      "人件費参考指数",
+      "印刷郵送費参考指数"
+    ]);
+
+    sim.historicalData.forEach(d => {
+      rows.push([
+        d.year,
+        Math.round(d.members),
+        Math.round(d.fee),
+        Math.round(d.otherIncome),
+        Math.round(d.income),
+        Math.round(d.laborCost),
+        Math.round(d.printCost),
+        Math.round(d.priceCost),
+        Math.round(d.fixedCost),
+        Math.round(d.expense),
+        Math.round(d.balance),
+        d.cpi,
+        d.wageIndex,
+        d.printIndex
+      ]);
+    });
+
+    addSection(rows, "無介入シナリオ");
+
+    rows.push([
+      "年度",
+      "会員数",
+      "年会費",
+      "収入（万円）",
+      "人件費（万円）",
+      "印刷・郵送費（万円）",
+      "その他物価連動費（万円）",
+      "固定費・その他（万円）",
+      "総支出（万円）",
+      "単年度収支（万円）",
+      "累積収支＋内部留保（万円）"
+    ]);
+
+    sim.baseline.forEach(d => {
+      rows.push([
+        d.year,
+        Math.round(d.members),
+        Math.round(d.fee),
+        Math.round(d.income),
+        Math.round(d.laborCost),
+        Math.round(d.printCost),
+        Math.round(d.priceCost),
+        Math.round(d.fixedCost),
+        Math.round(d.expense),
+        Math.round(d.balance),
+        Math.round(d.cumulative)
+      ]);
+    });
+
+    addSection(rows, "介入後シナリオ");
+
+    rows.push([
+      "年度",
+      "会員数",
+      "年会費",
+      "収入（万円）",
+      "人件費（万円）",
+      "印刷・郵送費（万円）",
+      "その他物価連動費（万円）",
+      "固定費・その他（万円）",
+      "総支出（万円）",
+      "単年度収支（万円）",
+      "累積収支＋内部留保（万円）"
+    ]);
+
+    sim.intervention.forEach(d => {
+      rows.push([
+        d.year,
+        Math.round(d.members),
+        Math.round(d.fee),
+        Math.round(d.income),
+        Math.round(d.laborCost),
+        Math.round(d.printCost),
+        Math.round(d.priceCost),
+        Math.round(d.fixedCost),
+        Math.round(d.expense),
+        Math.round(d.balance),
+        Math.round(d.cumulative)
+      ]);
+    });
+
+    addSection(rows, "要約");
+
+    const baselineLast = sim.baseline[sim.baseline.length - 1];
+    const interventionLast = sim.intervention[sim.intervention.length - 1];
+
+    rows.push(["項目", "値"]);
+    rows.push(["無介入：最終年収支（万円）", Math.round(baselineLast.balance)]);
+    rows.push(["介入後：最終年収支（万円）", Math.round(interventionLast.balance)]);
+    rows.push(["介入効果（万円）", Math.round(interventionLast.balance - baselineLast.balance)]);
+    rows.push(["無介入：赤字化年", sim.baselineFirstDeficit ? sim.baselineFirstDeficit + "年度" : "なし"]);
+    rows.push(["介入後：赤字化年", sim.interventionFirstDeficit ? sim.interventionFirstDeficit + "年度" : "なし"]);
+
+    rows.push([]);
+    rows.push(["注意"]);
+    rows.push(["本CSVはシミュレーション結果です。実際の予算編成・会議資料化にあたっては、決算書、予算書、会計担当者による確認を併用してください。"]);
+
+    const csv = "\uFEFF" + makeCSV(rows);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    const now = new Date();
+    const dateText =
+      now.getFullYear() +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      String(now.getDate()).padStart(2, "0") +
+      "_" +
+      String(now.getHours()).padStart(2, "0") +
+      String(now.getMinutes()).padStart(2, "0");
+
+    a.href = url;
+    a.download = "association_finance_simulation_" + dateText + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setStorageStatus("CSVを出力しました。");
+  }
+</script>
+
+</body>
+</html>
