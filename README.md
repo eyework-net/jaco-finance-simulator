@@ -33,7 +33,5 @@
 
 ## 公開ページ
 
-GitHub Pagesで公開する場合は、以下の形式でアクセスできます。
-
 ```text
-https://ユーザー名.github.io/リポジトリ名/
+https://eyework-net.github.io/jaco-finance-simulator/
